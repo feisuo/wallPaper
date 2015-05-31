@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">wallDemo</string>
+    <string name="galaxy_dorsal">Federation Galaxy Class</string>
+    <string-array name="galaxy_dorsal">
+        <item>Navigation Light;520;177;540;217</item>
+        <item>Main Bridge;353;180;393;206</item>
+        <item>Impulse Engine;240;75;260;102</item>
+        <item>Impulse Engine;240;286;260;313</item>
+        <item>Main Shuttle Bay;282;164;303;224</item>
+        <item>Warp Nacell;5;278;165;320</item><item>Warp Nacell;5;66;165;109</item>
+        <item>Bussard Collector;177;72;209;104</item>
+        <item>Bussard Collector;177;283;209;315</item>
+        <item>Photon Torpedo Bay;48;193</item>
+        <item>Phaser Array;40;209</item>
+        <item>Phaser Array;40;181</item>
+        <item>Bussard Ram Scoop;167;71;178;106</item>
+        <item>Bussard Ram Scoop;167;282;178;317</item>
+    </string-array>
+
+    <string name="excelsior">Federation Excelsior Class</string>
+    <string-array name="excelsior">
+        <item>Main Bridge;420;90;450;120</item>
+        <item>Primary Navigational Deflector Dish;246;368;290;414</item>
+        <item>Torpedo Launchers;208;342;232;362</item>
+        <item>Torpedo Launchers;308;342;332;362</item>
+        <item>Plasma Purge Vents;132;302;182;320</item>
+        <item>Plasma Purge Vents;354;302;415;320</item>
+        <item>Main Sensor Array;242;298;302;320</item>
+        <item>RCS Thrusters;396;260;420;282</item>
+        <item>RCS Thrusters;120;260;146;282</item>
+        <item>Shuttle Bay Door;87;87;116;123</item>
+        <item>Impulse Engines;300;70;328;140</item>
+        <item>Warp Nacelle;0;30;262;50</item>
+        <item>Warp Nacelle;0;160;262;182</item>
+        <item>Bussard Collector;262;30;288;50</item>
+        <item>Bussard Collector;262;160;288;182</item>
+        <item>Phaser Bank;430;64</item>
+        <item>Phaser Bank;463;73</item>
+        <item>Phaser Bank;477;105</item>
+        <item>Phaser Bank;463;136</item>
+        <item>Phaser Bank;430;146</item>
+    </string-array>
+    <string name="birdofprey">Klingon Bird of Prey (B\'Rel) Class</string>
+    <string-array name="birdofprey">
+        <item>Main Bridge;253;47;284;71</item>
+        <item>Cloak Generator Coil;233;15;303;33</item>
+        <item>Disrupter Cannon;0;116;24;314</item>
+        <item>Disrupter Cannon;517;116;540;314</item>
+        <item>Main Reactor;161;376;204;421</item>
+        <item>Main Reactor;335;376;378;421</item>
+        <item>Radiation Baffle;160;288;256;375</item>
+        <item>Radiation Baffle;284;288;381;375</item>
+        <item>Warp Nacelles;237;408;304;440</item>
+        <item>Deflector Grid Plates;68;303;159;377</item>
+        <item>Deflector Grid Plates;382;303;473;377</item>
+    </string-array>
+</resources>
+
