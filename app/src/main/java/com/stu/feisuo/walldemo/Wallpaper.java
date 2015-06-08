@@ -93,8 +93,7 @@ public class Wallpaper extends WallpaperService {
         double hourEndAngle;
         double dayEndAngle;
         double monthEndAngle;
-        // These values determine the location of the circles. Note: These have to be set in here. Why?
-        // Maybe because it needs to get the size of the current instance???
+        //polar clock show area
         int displayWidth = 308;
         int displayHeight = 440;
         int displayWidthMD = 232;
@@ -397,11 +396,11 @@ public class Wallpaper extends WallpaperService {
         }
 
         void drawPower(Canvas c){
-          double  powEndAngle = (batteryReceiver.getBatteryLevel())*360/100;
+          double  powEndAngle = (100-batteryReceiver.getBatteryLevel())*360/100;
             if (powEndAngle == 0) {
-                powEndAngle = 3;
+                powEndAngle = 1;
             }
-            c.drawArc(powerCircle, -90, (float) powEndAngle, false, IAMPaint.getDayPaint());
+            c.drawArc(powerCircle, 360, (float) powEndAngle, false, IAMPaint.getPowerPaint());
             c.drawText("Power: "+batteryReceiver.getBatteryLevel()+"%",powerCircle.centerX()+30,powerCircle.centerY()+6,IAMPaint.getPowerPaint());
         }
         void drawBitmap(Canvas c){

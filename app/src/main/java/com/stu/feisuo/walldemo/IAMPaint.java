@@ -17,16 +17,14 @@ public class IAMPaint {
     private Paint  bitmapPaint= new Paint();
     private Paint  usagePaint= new Paint();
     private Paint  uptimePaint= new Paint();
-    private Paint  buttonPaint= new Paint();
     private Paint  processPaint= new Paint();
-    private Paint  powerPaint= new Paint();
-    private Paint  electronPaint= new Paint();
     private Paint  hotspotPaint= new Paint();
     private Paint secPaint = new Paint();
     private Paint minPaint = new Paint();
     private Paint hourPaint = new Paint();
     private Paint dayPaint = new Paint();
     private Paint monthPaint = new Paint();
+    private Paint powerPaint= new Paint();
 
     public IAMPaint(Typeface font, float scale) {
 
@@ -56,26 +54,12 @@ public class IAMPaint {
         hotspotPaint.setColor(0xffcf6060);
         hotspotPaint.setAntiAlias(true);
 
-        buttonPaint.setTypeface(font);
-        buttonPaint.setTextSize(scale*TEXT_SMALL);
-        buttonPaint.setColor(0xffcf6060);
-        buttonPaint.setAntiAlias(true);
-        buttonPaint.setTextAlign(Paint.Align.RIGHT);
-
-        electronPaint.setColor(0xffff9f00);
-        electronPaint.setAntiAlias(true);
 
         processPaint.setTypeface(font);
         processPaint.setTextSize(scale*TEXT_SMALL);
         processPaint.setColor(0xff9f9fff);
         processPaint.setAntiAlias(true);
         processPaint.setTextAlign(Paint.Align.RIGHT);
-
-        powerPaint.setTextSize(scale * TEXT_SMALL);
-        powerPaint.setTypeface(font);
-        powerPaint.setColor(0xff9f9fff);
-        powerPaint.setAntiAlias(true);
-        powerPaint.setTextAlign(Paint.Align.RIGHT);
 
 
         secPaint.setColor(Color.GREEN);
@@ -102,11 +86,19 @@ public class IAMPaint {
         dayPaint.setStrokeCap(Paint.Cap.ROUND);
         dayPaint.setStyle(Paint.Style.STROKE);
 
+
         monthPaint.setColor(0xff4d0b97);
         monthPaint.setStrokeWidth(18);
         monthPaint.setAntiAlias(true);
         monthPaint.setStrokeCap(Paint.Cap.ROUND);
         monthPaint.setStyle(Paint.Style.STROKE);
+
+
+        powerPaint.setColor(Color.RED);
+        powerPaint.setStrokeWidth(12);
+        powerPaint.setAntiAlias(true);
+        powerPaint.setStrokeCap(Paint.Cap.ROUND);
+        powerPaint.setStyle(Paint.Style.STROKE);
 
     }
 
@@ -122,9 +114,7 @@ public class IAMPaint {
         return uptimePaint;
     }
 
-    public Paint getButtonPaint() {
-        return buttonPaint;
-    }
+
 
     public Paint getProcessPaint() {
         return processPaint;
@@ -132,10 +122,6 @@ public class IAMPaint {
 
     public Paint getPowerPaint() {
         return powerPaint;
-    }
-
-    public Paint getElectronPaint() {
-        return electronPaint;
     }
 
     public Paint getHotspotPaint() {
@@ -161,4 +147,6 @@ public class IAMPaint {
     public Paint getMonthPaint() {
         return monthPaint;
     }
+
+
 }
