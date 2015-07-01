@@ -12,7 +12,7 @@
         <service
             android:name=".Wallpaper"
             android:enabled="true"
-            android:label="Wallpaper Example "
+            android:label="Bee Wallpaper"
             android:permission="android.permission.BIND_WALLPAPER" >
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" >

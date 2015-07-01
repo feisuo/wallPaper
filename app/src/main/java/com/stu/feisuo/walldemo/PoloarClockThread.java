@@ -27,7 +27,7 @@ public class PoloarClockThread extends AbstractThread {
         calendar= Calendar.getInstance();
         months=calendar.get(Calendar.MONTH);
         days=calendar.get(Calendar.DAY_OF_WEEK);
-        hours=calendar.get(Calendar.HOUR);
+        hours=calendar.get(Calendar.HOUR_OF_DAY);
         minuts=calendar.get(Calendar.MINUTE);
         seconds=calendar.get(Calendar.SECOND);
         miliSecond=calendar.get(Calendar.MILLISECOND);
@@ -52,6 +52,7 @@ public class PoloarClockThread extends AbstractThread {
         return days;
     }
     public String getFormatDays() {
+        days-=1;
         return weekStr[days];
     }
 

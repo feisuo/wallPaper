@@ -25,6 +25,8 @@ public class IAMPaint {
     private Paint dayPaint = new Paint();
     private Paint monthPaint = new Paint();
     private Paint powerPaint= new Paint();
+    private Paint powerTextPaint = new Paint();
+    private Paint themePaint = new Paint();
 
     public IAMPaint(Typeface font, float scale) {
 
@@ -36,11 +38,12 @@ public class IAMPaint {
 
     private void initialize(){
 
-        bitmapPaint.setColor(0xffffffff);
+        bitmapPaint.setARGB(0xff,0xff,0xff,0xff);
         bitmapPaint.setAntiAlias(true);
-        bitmapPaint.setStrokeWidth(2);
+        bitmapPaint.setStrokeWidth(0);
         bitmapPaint.setStrokeCap(Paint.Cap.ROUND);
         bitmapPaint.setStyle(Paint.Style.STROKE);
+
 
         usagePaint.setTypeface(font);
         usagePaint.setTextSize(scale*TEXT_LANGE);
@@ -51,8 +54,17 @@ public class IAMPaint {
 
         hotspotPaint.setTypeface(font);
         hotspotPaint.setTextSize(scale*TEXT_SMALL);
-        hotspotPaint.setColor(0xffcf6060);
+        hotspotPaint.setColor(0xffe0ed10);
         hotspotPaint.setAntiAlias(true);
+        hotspotPaint.setStrokeCap(Paint.Cap.ROUND);
+        hotspotPaint.setStyle(Paint.Style.STROKE);
+
+        powerTextPaint.setTypeface(font);
+        powerTextPaint.setTextSize(scale*TEXT_MEDIUM);
+        powerTextPaint.setColor(0xff861cb8);
+        powerTextPaint.setAntiAlias(true);
+        powerTextPaint.setStrokeCap(Paint.Cap.ROUND);
+        powerTextPaint.setStyle(Paint.Style.STROKE);
 
 
         processPaint.setTypeface(font);
@@ -81,7 +93,7 @@ public class IAMPaint {
         hourPaint.setStyle(Paint.Style.STROKE);
 
         dayPaint.setColor(Color.MAGENTA);
-        dayPaint.setStrokeWidth(14);
+        dayPaint.setStrokeWidth(12);
         dayPaint.setAntiAlias(true);
         dayPaint.setStrokeCap(Paint.Cap.ROUND);
         dayPaint.setStyle(Paint.Style.STROKE);
@@ -94,11 +106,17 @@ public class IAMPaint {
         monthPaint.setStyle(Paint.Style.STROKE);
 
 
-        powerPaint.setColor(Color.RED);
+        powerPaint.setColor(0xffb4c7e7);
         powerPaint.setStrokeWidth(12);
         powerPaint.setAntiAlias(true);
         powerPaint.setStrokeCap(Paint.Cap.ROUND);
         powerPaint.setStyle(Paint.Style.STROKE);
+
+        themePaint.setColor(0xfffef48b);
+        themePaint.setAntiAlias(true);
+//        themePaint.setStrokeWidth(18);
+//        themePaint.setStrokeCap(Paint.Cap.ROUND);
+        themePaint.setStyle(Paint.Style.FILL);
 
     }
 
@@ -148,5 +166,11 @@ public class IAMPaint {
         return monthPaint;
     }
 
+    public Paint getPowerTextPaint() {
+        return powerTextPaint;
+    }
 
+    public Paint getThemePaint() {
+        return themePaint;
+    }
 }

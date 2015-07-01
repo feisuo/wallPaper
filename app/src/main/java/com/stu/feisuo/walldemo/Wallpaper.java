@@ -8,7 +8,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Picture;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -18,7 +20,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
-import java.util.Calendar;
+import java.util.Random;
 
 
 /**
@@ -28,12 +30,12 @@ public class Wallpaper extends WallpaperService {
 
 
     private final Handler mHandler = new Handler();
+
     private final int ELECTRON_FR=50;
     private final int CAUTION_FR=100;
     private final int NORMAL_FR=1000;
     private final int MEMORY_FR=15000;
     private final int DEFAULT_BACKGROUND=0;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -52,6 +54,7 @@ public class Wallpaper extends WallpaperService {
     class CubeEngine extends Engine{
 
 
+
         private final RectF secCircle = new RectF();
         private final RectF minCircle = new RectF();
         private final RectF hourCircle = new RectF();
@@ -59,6 +62,10 @@ public class Wallpaper extends WallpaperService {
         private final RectF monthCircle = new RectF();
         private final RectF powerCircle = new RectF();
         private final RectF polarRect = new RectF();
+        //touch Rect
+        private RectF meinvRect = new RectF();
+        private RectF touchDay = new RectF();
+        private RectF touchSec = new RectF();
         private IAMPaint IAMPaint;
         private float scale=getResources().getDisplayMetrics().density;
         float xScale;
@@ -69,10 +76,15 @@ public class Wallpaper extends WallpaperService {
         private float mTouchX;
         private float mTouchY;
         private Bitmap bitmapFramePortrait;
+        private Bitmap bitmapFramePortraitpng;
         private Bitmap bitmapMutablePortrait;
         private Bitmap bitmapFrameLandscape;
         private Bitmap bitmapPolar;
         private Bitmap bitmapShowInfo;
+        private Bitmap bitmapMeinv;
+        private Bitmap bitmapBee;
+        private Picture picFrame;
+
 
         private boolean isPortrait;
         private int framerate = NORMAL_FR;
@@ -85,7 +97,9 @@ public class Wallpaper extends WallpaperService {
 
         private StatsThread statsThread;
         private PoloarClockThread poloarClockThread;
+        private BackGroundColorThread backGroundColorThread;
 
+        private PointF current_point= new PointF();
 
 
         double secEndAngle;
@@ -94,16 +108,16 @@ public class Wallpaper extends WallpaperService {
         double dayEndAngle;
         double monthEndAngle;
         //polar clock show area
-        int displayWidth = 308;
-        int displayHeight = 440;
-        int displayWidthMD = 232;
-        int displayHeightMD = 300;
+        int displayWidth = 356;
+        int displayHeight = 526;
+        int displayWidthMD = 272;
+        int displayHeightMD = 355;
         // These values determine the sizes of the circles
         int secRadius = 88;
         int minRadius = 68;
         int hourRadius = 48;
-        int dayRadius = 48;
-        int monthRadius = 20;
+        int dayRadius = 60;
+        int monthRadius = 28;
 
         private final Runnable drawingThread = new Runnable() {
             public void run() {
@@ -115,6 +129,9 @@ public class Wallpaper extends WallpaperService {
         private BatteryReceiver batteryReceiver =  new BatteryReceiver();
         private boolean mVisible;
 
+        private SvgUtil svgUtil;
+
+
         CubeEngine() {
 
             registerReceiver(batteryReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
@@ -123,6 +140,10 @@ public class Wallpaper extends WallpaperService {
             bitmapPolar=BitmapFactory.decodeResource(res,R.drawable.polar);
             bitmapShowInfo=BitmapFactory.decodeResource(res,R.drawable.show_info);
             bitmapFrameLandscape=BitmapFactory.decodeResource(res,R.drawable.frame);
+            bitmapMeinv=BitmapFactory.decodeResource(res,R.drawable.meinv);
+            bitmapBee=BitmapFactory.decodeResource(res,R.drawable.beebg);
+            svgUtil= new SvgUtil(getAssets(), getResources());
+
 
             frameLandscapeRect= new Rect(204,0,bitmapFrameLandscape.getWidth(),bitmapFrameLandscape.getHeight());
             framePortraitRect = new Rect(0,0,bitmapFramePortrait.getWidth(),bitmapFramePortrait.getHeight());
@@ -134,18 +155,20 @@ public class Wallpaper extends WallpaperService {
             hourCircle.set(displayWidth - hourRadius, displayHeight - hourRadius, displayWidth + hourRadius, displayHeight + hourRadius);
             dayCircle.set(displayWidthMD- dayRadius, displayHeightMD - dayRadius, displayWidthMD + dayRadius, displayHeightMD + dayRadius);
             monthCircle.set(displayWidthMD- monthRadius, displayHeightMD - monthRadius, displayWidthMD + monthRadius, displayHeightMD + monthRadius);
-            powerCircle.set(520,146,604,230);
+            powerCircle.set(680,220,756,296);
             polarRect.set(224,309,410,662);
+            meinvRect.set(96,518,196,618);
             statsThread = new StatsThread(NORMAL_FR);
             poloarClockThread= new PoloarClockThread(ELECTRON_FR);
-
+            backGroundColorThread = new BackGroundColorThread(CAUTION_FR);
 
         }
 
         @Override
         public void onCreate(SurfaceHolder surfaceHolder) {
             super.onCreate(surfaceHolder);
-//            setTouchEventsEnabled(true);
+            picFrame=svgUtil.getSVGForResource(R.raw.frame).getPicture();
+            setTouchEventsEnabled(true);
         }
 
         @Override
@@ -154,11 +177,13 @@ public class Wallpaper extends WallpaperService {
             mHandler.removeCallbacks(drawingThread);
             statsThread.stopThread();
             poloarClockThread.stopThread();
+            backGroundColorThread.stopThread();
+
         }
 
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            super.onSurfaceChanged(holder, format, width, height);
+
             if(width>height){
                 isPortrait=false;
             }else{
@@ -168,6 +193,7 @@ public class Wallpaper extends WallpaperService {
             wallHeight=height;
             setDimensions();
             drawFrame();
+            super.onSurfaceChanged(holder, format, width, height);
 
         }
 
@@ -177,6 +203,7 @@ public class Wallpaper extends WallpaperService {
             setDimensions();
             statsThread.start();
             poloarClockThread.start();
+            backGroundColorThread.start();
 
         }
 
@@ -186,7 +213,17 @@ public class Wallpaper extends WallpaperService {
             mVisible=false;
             statsThread.stopThread();
             poloarClockThread.stopThread();
+            backGroundColorThread.stopThread();
             mHandler.removeCallbacks(drawingThread);
+            boolean retry = true;
+            while (retry) {
+                try {
+                    statsThread.join();
+                    poloarClockThread.join();
+                    retry = false;
+                } catch (InterruptedException e) {
+                }
+            }
         }
 
         @Override
@@ -205,7 +242,8 @@ public class Wallpaper extends WallpaperService {
 
         @Override
         public void onOffsetsChanged(float xOffset, float yOffset, float xOffsetStep, float yOffsetStep, int xPixels, int yPixels) {
-            mPixels =(int)-((wallWidth/2)*xOffset);
+            mPixels =(int)-((wallWidth/3)*xOffset);
+            current_point.set(mPixels,0);
             setDimensions();
             drawFrame();
         }
@@ -217,13 +255,28 @@ public class Wallpaper extends WallpaperService {
             if(event.getAction()==MotionEvent.ACTION_DOWN){
                 mTouchX=event.getX();
                 mTouchY=event.getY();
-//                Log.i("outer ","mTouchX :"+ mTouchX +"mTouchY : "+mTouchY);
                 hotspot=null;
-                if(dayCircle.contains(mTouchX/xScale,mTouchY/yScale)){
+
+                //reset the touch rect
+                meinvRect.set(96,518,196,618);
+                touchDay.set(dayCircle);
+                touchSec.set(secCircle);
+                touchDay.offset(mPixels,0);
+                touchSec.offset(mPixels,0);
+                meinvRect.offset(mPixels,0);
+
+                if(touchDay.contains(mTouchX, mTouchY)){
                     hotspot = new HotSpot(monthCircle,"mon");
-                }else if(secCircle.contains(mTouchX/xScale,mTouchY/yScale)){
+                }else if(touchSec.contains(mTouchX, mTouchY)){
                     hotspot = new HotSpot(secCircle,"sec");
+                }else if(meinvRect.contains(mTouchX,mTouchY)){
+                    backGroundColorThread.resumeThread();
                 }
+                mHandler.removeCallbacks(drawingThread);
+                if (mVisible) {
+                    mHandler.post(drawingThread);
+                }
+
             }else{
                 mTouchX=-1;
                 mTouchY=-1;
@@ -235,34 +288,29 @@ public class Wallpaper extends WallpaperService {
             wallpaperRect.set(mPixels,0,mPixels+wallWidth,wallHeight);
             xScale =(float)wallWidth/(isPortrait?bitmapFramePortrait.getWidth():bitmapFrameLandscape.getWidth());
             yScale=(float)wallHeight/(isPortrait?bitmapFramePortrait.getHeight():bitmapFrameLandscape.getHeight());
-
         }
 
         void drawFrame(){
-            Canvas c;
+            Canvas c=null;
             if(isPortrait){
-                c = new Canvas(bitmapMutablePortrait);
-                c.drawBitmap(bitmapFramePortrait,0,0, IAMPaint.getBitmapPaint());
-                drawPolarClock(c);
-                drawSystemInfo(c);
-                drawText(c);
-                drawPower(c);
+                SurfaceHolder holder = getSurfaceHolder();
+                c=holder.lockCanvas();
+                if(c!=null) {
+
+                    c.drawARGB(0xFF,backGroundColorThread.getBackgroundRed(),backGroundColorThread.getBackgroundGreen(),backGroundColorThread.getBackgroundBlue());
+                    drawBitmap(c);
+                    drawPolarClock(c);
+                    drawSystemInfo(c);
+                    drawText(c);
+                    drawTheme(c);
+                    drawPower(c);
+                    holder.unlockCanvasAndPost(c);
+                }
             }
-            SurfaceHolder holder = getSurfaceHolder();
-            c=holder.lockCanvas();
-            if(c!=null) {
-                drawBitmap(c);
-            }
-            holder.unlockCanvasAndPost(c);
+
+
             mHandler.removeCallbacks(drawingThread);
             if (mVisible) {
-//                if (batteryReceiver.isBatteryLow(20)) {
-//                    framerate = CAUTION_FR;
-//                } else if (systemPanelMode == ELECTRON_MODE) {
-//                    framerate = ELECTRON_FR;
-//                } else {
-//                    framerate = NORMAL_FR;
-//                }
                 mHandler.postDelayed(drawingThread, framerate);
             }
         }
@@ -270,7 +318,6 @@ public class Wallpaper extends WallpaperService {
         void drawPolarClock(Canvas c){
             if(isPortrait) {
 
-                c.drawBitmap(bitmapPolar, 204, 340, IAMPaint.getBitmapPaint());
                 secEndAngle = poloarClockThread.getSeconds() * 6 + poloarClockThread.getMiliSecond() * .006;
                 c.drawArc(secCircle, -90, (float) secEndAngle, false, IAMPaint.getSecPaint());
                 // builds minute circle
@@ -281,7 +328,7 @@ public class Wallpaper extends WallpaperService {
                 c.drawArc(minCircle, -90, (float) minEndAngle, false, IAMPaint.getMinPaint());
 
                 // builds hour circle
-                hourEndAngle = poloarClockThread.getHours() * 30;
+                hourEndAngle = (poloarClockThread.getHours()%12) * 30;
                 if (hourEndAngle == 0) {
                     hourEndAngle = 3;
                 }
@@ -304,8 +351,9 @@ public class Wallpaper extends WallpaperService {
                 if(hotspot!=null){
                     if("sec".equals(hotspot.name)){
                         c.drawText(poloarClockThread.getFormatHours()+":"+poloarClockThread.getFormatMinuts()+":"+poloarClockThread.getFormatSeconds(),100,200 + IAMPaint.TEXT_MEDIUM,IAMPaint.getUsagePaint());
-                    }else{
+                    }else if("mon".equals(hotspot.name)){
                         c.drawText(poloarClockThread.getFormatDays()+" "+poloarClockThread.getFormatMonths(),100,200 + IAMPaint.TEXT_MEDIUM,IAMPaint.getUsagePaint());
+
                     }
                     drawLabel(
                             new Point(90,(int)(200+IAMPaint.TEXT_MEDIUM)),
@@ -315,8 +363,8 @@ public class Wallpaper extends WallpaperService {
             }
         }
         void drawSystemInfo(Canvas c){
-            c.drawBitmap(bitmapShowInfo,354,202, IAMPaint.getBitmapPaint());
-            c.drawBitmap(bitmapShowInfo,480,368, IAMPaint.getBitmapPaint());
+            c.drawBitmap(bitmapShowInfo,468,248, IAMPaint.getBitmapPaint());
+            c.drawBitmap(bitmapShowInfo,568,508, IAMPaint.getBitmapPaint());
         }
 
         void drawLabel(Point start, Point end, Canvas c) {
@@ -352,12 +400,12 @@ public class Wallpaper extends WallpaperService {
             c.drawCircle(start.x, start.y, 2, linePaint);
             c.drawCircle(end.x, end.y, 2, linePaint);
         }
-
+//
         void drawText(Canvas c) {
-            int[] columns = { 520, 560, 600 };
-            int[] rows = { 440, 460, 480, 500, 520, 540 };
+            int[] columns = { 608, 648, 696 };
+            int[] rows = { 580, 600, 620, 640, 660, 680 };
             try {
-                c.drawText("CPU "+statsThread.getUsage()+"%", 400, 310,
+                c.drawText("CPU "+statsThread.getUsage()+"%", 520, 368,
                         IAMPaint.getUsagePaint());
                 // c.drawText(dur + " " + sDays + " " + sHours + ":" + sMins +
                 // ":" +
@@ -396,22 +444,32 @@ public class Wallpaper extends WallpaperService {
         }
 
         void drawPower(Canvas c){
-          double  powEndAngle = (100-batteryReceiver.getBatteryLevel())*360/100;
-            if (powEndAngle == 0) {
-                powEndAngle = 1;
-            }
-            c.drawArc(powerCircle, 360, (float) powEndAngle, false, IAMPaint.getPowerPaint());
-            c.drawText("Power: "+batteryReceiver.getBatteryLevel()+"%",powerCircle.centerX()+30,powerCircle.centerY()+6,IAMPaint.getPowerPaint());
+//          double  powEndAngle = -(batteryReceiver.getBatteryLevel())*360/100;
+//            if (powEndAngle == 0) {
+//                powEndAngle = -91;
+//            }
+//            c.drawArc(powerCircle, -90, (float) powEndAngle, false, IAMPaint.getPowerPaint());
+            c.drawText("POWER "+batteryReceiver.getBatteryLevel()+"%",powerCircle.centerX()-40,powerCircle.centerY()+6,IAMPaint.getPowerTextPaint());
         }
         void drawBitmap(Canvas c){
+
             if(!isPortrait){
+
                 c.drawBitmap(bitmapFrameLandscape,frameLandscapeRect,wallpaperRect, IAMPaint.getBitmapPaint());
             }else{
-                c.drawBitmap(bitmapMutablePortrait,framePortraitRect,wallpaperRect, IAMPaint.getBitmapPaint());
-                IAMPaint.getHotspotPaint().setStyle(Paint.Style.STROKE);
+                c.translate(current_point.x, current_point.y);
+                picFrame.draw(c);
             }
         }
-
+        void drawTheme(Canvas c){
+            Paint themePaint = new Paint();
+            themePaint.setColor(backGroundColorThread.getNextBackground());
+            themePaint.setAntiAlias(true);
+            themePaint.setStyle(Paint.Style.FILL);
+            c.drawCircle(146,566,46,themePaint);
+            c.drawBitmap(bitmapBee,96,518,IAMPaint.getBitmapPaint());
+        }
 
     }
+
 }
